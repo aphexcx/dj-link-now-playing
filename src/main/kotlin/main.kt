@@ -5,8 +5,6 @@ import org.deepsymmetry.beatlink.data.ArtFinder
 import org.deepsymmetry.beatlink.data.MetadataFinder
 import kotlin.concurrent.thread
 
-// ...
-
 fun main(args: Array<String>) {
 
     val deviceFinder = DeviceFinder.getInstance()
@@ -26,6 +24,7 @@ fun main(args: Array<String>) {
     // the tracks themselves, you need to have beat-link create a virtual player on the network. This causes the
     // other players to send detailed status updates directly to beat-link, so it can interpret and keep track of
     // this information for you.
+    // This also means you can't run this when rekordbox is running on the same computer.
     val virtualCdj = VirtualCdj.getInstance()
     virtualCdj.useStandardPlayerNumber = true
     virtualCdj.addLifecycleListener(object : LifecycleListener {
@@ -64,7 +63,7 @@ fun main(args: Array<String>) {
     beatListener.start()
 
     while (true) {
-        Thread.sleep(50)
+        Thread.sleep(100)
     }
 
 }

@@ -11,11 +11,10 @@ import java.io.OutputStream
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.channels.WritableByteChannel
-import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.*
-
+import java.time.format.DateTimeFormatter
+import javax.imageio.ImageIO
 
 val REMOVE_THESE = listOf(
     " - Extended Mix",
@@ -23,35 +22,33 @@ val REMOVE_THESE = listOf(
     "(Extended Mix)"
 )
 
-
 /**
- * Listens to all connected CDJs' beat and tempo updates.
+ * Listens to channel on-air changes from the mixer to write the currently playing track's
+ * title, artist and album art to files.
  *
- * We pick the CDJ to sync shows to based on the following priority:
- * 1) The CDJ that is currently on-air (has its fader up on the mixer)
- * 2) If more than one CDJ is on-air, pick the CDJ that is the Tempo Master
+ * Decides on the currently playing track based on the following logic:
+ * We only want to display the track title and artist if there's only one on-air player. While that might sound counter-
+ * intuitive, it works great because when you're in the mix, you want to keep people guessing as to the incoming track.
+ * They only see its title when you're done mixing it in, right as you slam the outgoing channel's fader down. :)
  */
-class TrackSource() : BeatListener, OnAirListener {
+class TrackSource : BeatListener, OnAirListener {
 
-    private var emptyTrack = Track("twitch.tv/aphexcx", "QUARANTRANCE • Episode #3", art = null)
+    private var emptyTrack = Track(0, "twitch.tv/aphexcx", "QUARANTRANCE • Episode #4", art = null)
+    private var IDTrack = Track(-1, "ID", "ID", art = null)
     private var nowPlayingTrack: Track = emptyTrack
     private val emptyAlbumArt: ByteArray = File("/Users/afik_cohen/obs/image.png").readBytes()
     private val currentlyAudibleChannels: MutableSet<Int> = hashSetOf()
     private var startTime = LocalDateTime.now()
     private val tracklist = mutableMapOf<LocalDateTime, Track>()
-    val sdf = SimpleDateFormat("H:mm:ss", Locale.getDefault());
-
-//    private val listeners = mutableListOf<(BeatData) -> Unit>()
+    val dateformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_H.mm.ss")
 
     override fun newBeat(beat: Beat?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun channelsOnAir(audibleChannels: MutableSet<Int>?) {
         if (audibleChannels == null) return
-        //Only works with two channels rn
-        val newChannels = audibleChannels - currentlyAudibleChannels
-        val latestChannelOnAir: Int? = newChannels.firstOrNull()
+
         currentlyAudibleChannels.clear()
         currentlyAudibleChannels.addAll(audibleChannels)
 
@@ -65,12 +62,19 @@ class TrackSource() : BeatListener, OnAirListener {
                 title = title.replace(it, "")
             }
 
-            val currentTrack = Track(
-                title = title,
-                artist = metadata.artist.label,
-                art = art
-            )
-            if (currentTrack == nowPlayingTrack) {
+            val currentTrack = if (metadata.album.label == "ID") {
+                IDTrack
+            } else {
+                Track(
+                    id = metadata.trackReference.rekordboxId,
+                    title = title,
+                    artist = metadata.artist.label,
+                    art = art
+                )
+            }
+
+            //TODO this isn't comparing same tracks correctly? Test this id check
+            if (currentTrack.id == nowPlayingTrack.id) {
                 return
             }
 
@@ -80,8 +84,10 @@ class TrackSource() : BeatListener, OnAirListener {
             nowPlayingTrack = currentTrack
 
         } ?: run {
-            writeNowPlayingToFiles(emptyTrack)
-            nowPlayingTrack = emptyTrack
+            if (nowPlayingTrack != emptyTrack) {
+                writeNowPlayingToFiles(emptyTrack)
+                nowPlayingTrack = emptyTrack
+            }
         }
     }
 
@@ -92,7 +98,7 @@ class TrackSource() : BeatListener, OnAirListener {
         }
         tracklist[now] = currentTrack
 
-        with(File("/Users/afik_cohen/obs/tracklist.txt")) {
+        with(File("/Users/afik_cohen/obs/tracklist.${dateformatter.format(startTime)}.txt")) {
             if (!exists()) createNewFile()
             val writer = printWriter()
             tracklist.keys.forEachIndexed { index, tracktime ->
@@ -127,9 +133,9 @@ class TrackSource() : BeatListener, OnAirListener {
             if (track.art == null) {
                 writeBytes(emptyAlbumArt)
             } else {
-                writeBuffer(track.art.rawBytes, outputStream())
+                ImageIO.write(track.art.image, "png", outputStream())
+//                writeBuffer(track.art.image., outputStream())
             }
-//            this.cl()
         }
     }
 
@@ -154,4 +160,23 @@ class TrackSource() : BeatListener, OnAirListener {
 }
 
 
-data class Track(val title: String, val artist: String, val art: AlbumArt?)
+data class Track(val id: Int, val title: String, val artist: String, val art: AlbumArt?) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Track) return false
+
+        if (id != other.id) return false
+        if (title != other.title) return false
+        if (artist != other.artist) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + title.hashCode()
+        result = 31 * result + artist.hashCode()
+        return result
+    }
+}
