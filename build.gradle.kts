@@ -19,7 +19,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.deepsymmetry:beat-link:0.6.2")
-//    implementation("com.natpryce:konfig:1.6.10.0")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("com.uchuhimo:konf:0.22.1")
 
 }

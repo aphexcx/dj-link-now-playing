@@ -1,16 +1,23 @@
 package cx.aphex.now_playing
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
+import com.uchuhimo.konf.toValue
 import org.deepsymmetry.beatlink.*
 import org.deepsymmetry.beatlink.data.ArtFinder
 import org.deepsymmetry.beatlink.data.MetadataFinder
+import org.slf4j.LoggerFactory
 import kotlin.concurrent.thread
 
-fun main(args: Array<String>) {
 
+fun main(args: Array<String>) {
     val config = Config()
         .from.yaml.file("config.yml")
+
+    val rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
+    rootLogger.level = Level.toLevel(config.at("log-level").toValue<String>())
 
     val deviceFinder = DeviceFinder.getInstance()
     deviceFinder.start()

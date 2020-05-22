@@ -14,3 +14,7 @@ empty-track-album-art-path: "/Users/afik_cohen/obs/image.png"
 remove-these-from-track-titles: [ " - Extended Mix",
                                   " (Extended Mix)",
                                   "(Extended Mix)" ]
+
+# Use this level of logging. From most verbose to least, they are [ "trace" , "debug", "info", "warn", "error" ].
+# Useful for debugging problems.
+log-level: "warn"
