@@ -1,7 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.61"
+    application
+    kotlin("jvm") version "1.3.72"
+}
+
+application {
+    mainClass.set("cx.aphex.now_playing.MainKt")
 }
 
 group = "cx.aphex"
@@ -13,7 +18,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.deepsymmetry:beat-link:0.6.1")
+    implementation("org.deepsymmetry:beat-link:0.6.2")
 
 }
 

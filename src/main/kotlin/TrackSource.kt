@@ -33,8 +33,9 @@ val REMOVE_THESE = listOf(
  */
 class TrackSource : BeatListener, OnAirListener {
 
-    private var emptyTrack = Track(0, "twitch.tv/aphexcx", "QUARANTRANCE • Episode #4", art = null)
-    private var IDTrack = Track(-1, "ID", "ID", art = null)
+    private var emptyTrack =
+        Track(0, "twitch.tv/aphexcx", "QUARANTRANCE • Episode #6", art = null, precedingTrackPlayedAtBpm = null)
+    private var IDTrack = Track(-1, "ID", "ID", art = null, precedingTrackPlayedAtBpm = null)
     private var nowPlayingTrack: Track = emptyTrack
     private val emptyAlbumArt: ByteArray = File("/Users/afik_cohen/obs/image.png").readBytes()
     private val currentlyAudibleChannels: MutableSet<Int> = hashSetOf()
@@ -42,8 +43,10 @@ class TrackSource : BeatListener, OnAirListener {
     private val tracklist = mutableMapOf<LocalDateTime, Track>()
     val dateformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_H.mm.ss")
 
-    override fun newBeat(beat: Beat?) {
+    private var currentBpm: Double? = null
 
+    override fun newBeat(beat: Beat?) {
+        currentBpm = beat?.effectiveTempo
     }
 
     override fun channelsOnAir(audibleChannels: MutableSet<Int>?) {
@@ -69,7 +72,8 @@ class TrackSource : BeatListener, OnAirListener {
                     id = metadata.trackReference.rekordboxId,
                     title = title,
                     artist = metadata.artist.label,
-                    art = art
+                    art = art,
+                    precedingTrackPlayedAtBpm = currentBpm
                 )
             }
 
@@ -106,6 +110,19 @@ class TrackSource : BeatListener, OnAirListener {
                 val currentTrack = tracklist[tracktime]
                 writer.println(
                     "${index + 1}. ${currentTrack?.artist} - ${currentTrack?.title} ${formatDuration(elapsed)}"
+                )
+            }
+            writer.close()
+        }
+
+        with(File("/Users/afik_cohen/obs/tracklist.bpm.${dateformatter.format(startTime)}.txt")) {
+            if (!exists()) createNewFile()
+            val writer = printWriter()
+            tracklist.keys.forEachIndexed { index, tracktime ->
+                val elapsed = Duration.between(startTime, tracktime)
+                val currentTrack = tracklist[tracktime]
+                writer.println(
+                    "${index + 1}. ${currentTrack?.artist} - ${currentTrack?.title} ${formatDuration(elapsed)} |${currentTrack?.precedingTrackPlayedAtBpm}"
                 )
             }
             writer.close()
@@ -160,7 +177,13 @@ class TrackSource : BeatListener, OnAirListener {
 }
 
 
-data class Track(val id: Int, val title: String, val artist: String, val art: AlbumArt?) {
+data class Track(
+    val id: Int,
+    val title: String,
+    val artist: String,
+    val art: AlbumArt?,
+    val precedingTrackPlayedAtBpm: Double?
+) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
