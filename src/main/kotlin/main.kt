@@ -1,11 +1,16 @@
 package cx.aphex.now_playing
 
+import com.uchuhimo.konf.Config
+import com.uchuhimo.konf.source.yaml
 import org.deepsymmetry.beatlink.*
 import org.deepsymmetry.beatlink.data.ArtFinder
 import org.deepsymmetry.beatlink.data.MetadataFinder
 import kotlin.concurrent.thread
 
 fun main(args: Array<String>) {
+
+    val config = Config()
+        .from.yaml.file("config.yml")
 
     val deviceFinder = DeviceFinder.getInstance()
     deviceFinder.start()
@@ -55,7 +60,7 @@ fun main(args: Array<String>) {
 
     ArtFinder.getInstance().start()
 
-    val trackSource = TrackSource()
+    val trackSource = TrackSource(config)
 
     val beatListener = BeatFinder.getInstance()
     beatListener.addBeatListener(trackSource)

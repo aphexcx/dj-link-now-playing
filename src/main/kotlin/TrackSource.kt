@@ -1,5 +1,7 @@
 package cx.aphex.now_playing
 
+import com.uchuhimo.konf.Config
+import com.uchuhimo.konf.toValue
 import org.deepsymmetry.beatlink.Beat
 import org.deepsymmetry.beatlink.BeatListener
 import org.deepsymmetry.beatlink.OnAirListener
@@ -11,16 +13,12 @@ import java.io.OutputStream
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.channels.WritableByteChannel
+import java.nio.file.Paths
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.imageio.ImageIO
 
-val REMOVE_THESE = listOf(
-    " - Extended Mix",
-    " (Extended Mix)",
-    "(Extended Mix)"
-)
 
 /**
  * Listens to channel on-air changes from the mixer to write the currently playing track's
@@ -31,13 +29,24 @@ val REMOVE_THESE = listOf(
  * intuitive, it works great because when you're in the mix, you want to keep people guessing as to the incoming track.
  * They only see its title when you're done mixing it in, right as you slam the outgoing channel's fader down. :)
  */
-class TrackSource : BeatListener, OnAirListener {
+class TrackSource(config: Config) : BeatListener, OnAirListener {
 
-    private var emptyTrack =
-        Track(0, "twitch.tv/aphexcx", "QUARANTRANCE • Episode #6", art = null, precedingTrackPlayedAtBpm = null)
-    private var IDTrack = Track(-1, "ID", "ID", art = null, precedingTrackPlayedAtBpm = null)
+    private val outputFolder = config.at("output-folder").toValue<String>()
+
+    private val REMOVE_THESE = config.at("remove-these-from-track-titles").toValue<List<String>>()
+
+    private var emptyTrack = config.at("empty-track").toValue<Track>()
+
+    private val emptyAlbumArt: ByteArray = File(config.at("empty-track-album-art-path").toValue<String>()).readBytes()
+
+    private var IDTrack = Track(
+        id = -1,
+        title = "ID",
+        artist = "ID",
+        art = null,
+        precedingTrackPlayedAtBpm = null
+    )
     private var nowPlayingTrack: Track = emptyTrack
-    private val emptyAlbumArt: ByteArray = File("/Users/afik_cohen/obs/image.png").readBytes()
     private val currentlyAudibleChannels: MutableSet<Int> = hashSetOf()
     private var startTime = LocalDateTime.now()
     private val tracklist = mutableMapOf<LocalDateTime, Track>()
@@ -102,27 +111,27 @@ class TrackSource : BeatListener, OnAirListener {
         }
         tracklist[now] = currentTrack
 
-        with(File("/Users/afik_cohen/obs/tracklist.${dateformatter.format(startTime)}.txt")) {
+        with(Paths.get(outputFolder, "tracklist.${dateformatter.format(startTime)}.txt").toFile()) {
             if (!exists()) createNewFile()
             val writer = printWriter()
             tracklist.keys.forEachIndexed { index, tracktime ->
                 val elapsed = Duration.between(startTime, tracktime)
-                val currentTrack = tracklist[tracktime]
+                val track = tracklist[tracktime]
                 writer.println(
-                    "${index + 1}. ${currentTrack?.artist} - ${currentTrack?.title} ${formatDuration(elapsed)}"
+                    "${index + 1}. ${track?.artist} - ${track?.title} ${formatDuration(elapsed)}"
                 )
             }
             writer.close()
         }
 
-        with(File("/Users/afik_cohen/obs/tracklist.bpm.${dateformatter.format(startTime)}.txt")) {
+        with(Paths.get(outputFolder, "tracklist.bpm.${dateformatter.format(startTime)}.txt").toFile()) {
             if (!exists()) createNewFile()
             val writer = printWriter()
             tracklist.keys.forEachIndexed { index, tracktime ->
                 val elapsed = Duration.between(startTime, tracktime)
-                val currentTrack = tracklist[tracktime]
+                val track = tracklist[tracktime]
                 writer.println(
-                    "${index + 1}. ${currentTrack?.artist} - ${currentTrack?.title} ${formatDuration(elapsed)} |${currentTrack?.precedingTrackPlayedAtBpm}"
+                    "${index + 1}. ${track?.artist} - ${track?.title} ${formatDuration(elapsed)} |${track?.precedingTrackPlayedAtBpm}"
                 )
             }
             writer.close()
@@ -130,28 +139,26 @@ class TrackSource : BeatListener, OnAirListener {
     }
 
     private fun writeNowPlayingToFiles(track: Track) {
-        with(File("/Users/afik_cohen/obs/nowplaying-artist.txt")) {
+        with(Paths.get(outputFolder, "nowplaying-artist.txt").toFile()) {
             if (!exists()) createNewFile()
             val writer = printWriter()
             writer.println(track.artist)
             writer.close()
         }
 
-        with(File("/Users/afik_cohen/obs/nowplaying-track.txt")) {
+        with(Paths.get(outputFolder, "nowplaying-track.txt").toFile()) {
             if (!exists()) createNewFile()
             val writer = printWriter()
             writer.println(track.title)
             writer.close()
         }
 
-        with(File("/Users/afik_cohen/obs/art/nowplaying-art.png")) {
+        with(Paths.get(outputFolder, "art/nowplaying-art.png").toFile()) {
             if (!exists()) createNewFile()
-//            val writer = writer()
             if (track.art == null) {
                 writeBytes(emptyAlbumArt)
             } else {
                 ImageIO.write(track.art.image, "png", outputStream())
-//                writeBuffer(track.art.image., outputStream())
             }
         }
     }
@@ -175,7 +182,6 @@ class TrackSource : BeatListener, OnAirListener {
     }
 
 }
-
 
 data class Track(
     val id: Int,

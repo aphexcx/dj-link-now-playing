@@ -1,0 +1,16 @@
+# All files (track title, artist, album art, tracklists etc) will be continuously written and updated in this directory.
+# Note that art will be written to the art/ subfolder here so you can use the folder with OBS's Image Slide Show.
+output-folder: "/Users/afik_cohen/obs/"
+
+# This is what now-playing will show while there is no track playing or while there are multiple tracks playing (e.g. when you're in the mix.)
+empty-track:
+  artist: "QUARANTRANCE • Episode #6"
+  title: "twitch.tv/aphexcx"
+
+# The path to an image file that will be shown for the empty track.
+empty-track-album-art-path: "/Users/afik_cohen/obs/image.png"
+
+# We'll strip these out of track titles when displayed, to make things a bit cleaner.
+remove-these-from-track-titles: [ " - Extended Mix",
+                                  " (Extended Mix)",
+                                  "(Extended Mix)" ]
