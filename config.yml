@@ -4,11 +4,17 @@ output-folder: "/Users/afik_cohen/obs/"
 
 # This is what now-playing will show while there is no track playing or while there are multiple tracks playing (e.g. when you're in the mix.)
 empty-track:
-  artist: "QUARANTRANCE • Episode #6"
+  artist: "QUARANTRANCE • Episode #10 • WE FOUND OUR BEACH"
   title: "twitch.tv/aphexcx"
 
 # The path to an image file that will be shown for the empty track.
 empty-track-album-art-path: "/Users/afik_cohen/obs/image.png"
+
+# The empty track will be shown if you play a track tagged with this Album name.
+hide-track-with-this-album-name: "HIDEME"
+
+# "ID - ID" will be shown when you play a track tagged with this Album name.
+id-track-with-this-album-name: "ID"
 
 # We'll strip these out of track titles when displayed, to make things a bit cleaner.
 remove-these-from-track-titles: [ " - Extended Mix",

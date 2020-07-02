@@ -63,8 +63,6 @@ fun main(args: Array<String>) {
 
     MetadataFinder.getInstance().start()
 
-    MetadataFinder.getInstance().getLatestMetadataFor(2)
-
     ArtFinder.getInstance().start()
 
     val trackSource = TrackSource(config)

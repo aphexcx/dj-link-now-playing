@@ -39,6 +39,9 @@ class TrackSource(config: Config) : BeatListener, OnAirListener {
 
     private val emptyAlbumArt: ByteArray = File(config.at("empty-track-album-art-path").toValue<String>()).readBytes()
 
+    private val hidelabel = config.at("hide-track-with-this-album-name").toValue<String>()
+
+    private val IDlabel = config.at("id-track-with-this-album-name").toValue<String>()
     private var IDTrack = Track(
         id = -1,
         title = "ID",
@@ -74,16 +77,18 @@ class TrackSource(config: Config) : BeatListener, OnAirListener {
                 title = title.replace(it, "")
             }
 
-            val currentTrack = if (metadata.album.label == "ID") {
-                IDTrack
-            } else {
-                Track(
-                    id = metadata.trackReference.rekordboxId,
-                    title = title,
-                    artist = metadata.artist.label,
-                    art = art,
-                    precedingTrackPlayedAtBpm = currentBpm
-                )
+            val currentTrack = when (metadata.album.label) {
+                IDlabel -> IDTrack
+                hidelabel -> emptyTrack
+                else -> {
+                    Track(
+                        id = metadata.trackReference.rekordboxId,
+                        title = title,
+                        artist = metadata.artist.label,
+                        art = art,
+                        precedingTrackPlayedAtBpm = currentBpm
+                    )
+                }
             }
 
             //TODO this isn't comparing same tracks correctly? Test this id check
