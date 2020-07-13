@@ -5,9 +5,9 @@ import com.uchuhimo.konf.toValue
 import org.deepsymmetry.beatlink.Beat
 import org.deepsymmetry.beatlink.BeatListener
 import org.deepsymmetry.beatlink.OnAirListener
-import org.deepsymmetry.beatlink.data.AlbumArt
 import org.deepsymmetry.beatlink.data.ArtFinder
 import org.deepsymmetry.beatlink.data.MetadataFinder
+import java.awt.image.BufferedImage
 import java.io.File
 import java.io.OutputStream
 import java.nio.ByteBuffer
@@ -57,6 +57,11 @@ class TrackSource(config: Config) : BeatListener, OnAirListener {
 
     private var currentBpm: Double? = null
 
+    private val HqAlbumArtFinder = HqAlbumArtFinder(
+        config.at("music-folders").toValue(),
+        config.at("music-file-extensions").toValue()
+    )
+
     override fun newBeat(beat: Beat?) {
         currentBpm = beat?.effectiveTempo
     }
@@ -69,13 +74,17 @@ class TrackSource(config: Config) : BeatListener, OnAirListener {
 
         val onlyChannelOnAir = currentlyAudibleChannels.singleOrNull()
         onlyChannelOnAir?.let {
-            val metadata = MetadataFinder.getInstance().getLatestMetadataFor(it)
-            val art = ArtFinder.getInstance().getLatestArtFor(it)
+            val metadata = MetadataFinder.getInstance().getLatestMetadataFor(it) ?: return@let null
+
             var title = metadata.title
 
             REMOVE_THESE.forEach {
                 title = title.replace(it, "")
             }
+
+            val art: BufferedImage? = HqAlbumArtFinder.getHQAlbumArt(metadata)
+                ?: ArtFinder.getInstance().getLatestArtFor(it)?.image
+
 
             val currentTrack = when (metadata.album.label) {
                 IDlabel -> IDTrack
@@ -154,7 +163,7 @@ class TrackSource(config: Config) : BeatListener, OnAirListener {
         with(Paths.get(outputFolder, "nowplaying-track.txt").toFile()) {
             if (!exists()) createNewFile()
             val writer = printWriter()
-            writer.println(track.title)
+            writer.println(track.artist + " • " + track.title)
             writer.close()
         }
 
@@ -163,7 +172,7 @@ class TrackSource(config: Config) : BeatListener, OnAirListener {
             if (track.art == null) {
                 writeBytes(emptyAlbumArt)
             } else {
-                ImageIO.write(track.art.image, "png", outputStream())
+                ImageIO.write(track.art, "png", outputStream())
             }
         }
     }
@@ -192,7 +201,7 @@ data class Track(
     val id: Int,
     val title: String,
     val artist: String,
-    val art: AlbumArt?,
+    val art: BufferedImage?,
     val precedingTrackPlayedAtBpm: Double?
 ) {
 

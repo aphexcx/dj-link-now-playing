@@ -21,6 +21,7 @@ dependencies {
     implementation("org.deepsymmetry:beat-link:0.6.2")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("com.uchuhimo:konf:0.22.1")
+    implementation("com.ealva", "ealvatag", "0.4.3")
 
 }
 
