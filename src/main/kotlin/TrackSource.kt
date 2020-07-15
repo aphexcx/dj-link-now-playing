@@ -163,7 +163,7 @@ class TrackSource(config: Config) : BeatListener, OnAirListener {
         with(Paths.get(outputFolder, "nowplaying-track.txt").toFile()) {
             if (!exists()) createNewFile()
             val writer = printWriter()
-            writer.println(track.artist + " • " + track.title)
+            writer.println(track.title)
             writer.close()
         }
 
