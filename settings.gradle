@@ -1,2 +1,3 @@
 rootProject.name = 'now_playing'
 
+//include("beat-link")

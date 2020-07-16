@@ -22,6 +22,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("com.uchuhimo:konf:0.22.1")
     implementation("com.ealva", "ealvatag", "0.4.3")
+    implementation("org.jmdns:jmdns:3.5.5")
 
 }
 

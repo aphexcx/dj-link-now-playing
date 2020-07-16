@@ -19,6 +19,8 @@ fun main(args: Array<String>) {
     val rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
     rootLogger.level = Level.toLevel(config.at("log-level").toValue<String>())
 
+    BeatLinkDataConsumerServiceDiscovery.start()
+
     val deviceFinder = DeviceFinder.getInstance()
     deviceFinder.start()
     deviceFinder.addDeviceAnnouncementListener(object : DeviceAnnouncementListener {
