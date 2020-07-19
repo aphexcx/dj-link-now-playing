@@ -16,6 +16,7 @@ object BeatLinkDataConsumerServiceDiscovery {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java.name) as Logger
 
+    val beatLinkDataConsumers = mutableListOf<BeatLinkDataConsumer>()
     init {
         logger.level = Level.INFO
     }
@@ -45,10 +46,18 @@ object BeatLinkDataConsumerServiceDiscovery {
 
         override fun serviceRemoved(event: ServiceEvent) {
             logger.info("Service removed: " + event.info)
+            beatLinkDataConsumers.removeIf { it.address == event.info.inet4Addresses.first() }
         }
 
         override fun serviceResolved(event: ServiceEvent) {
             logger.info("Service resolved: " + event.info)
+            val info = event.info
+            beatLinkDataConsumers.add(
+                BeatLinkDataConsumer(
+                    info.inet4Addresses.first(),
+                    info.port
+                )
+            )
         }
     }
 }

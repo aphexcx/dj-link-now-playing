@@ -24,6 +24,17 @@ dependencies {
     implementation("com.ealva", "ealvatag", "0.4.3")
     implementation("org.jmdns:jmdns:3.5.5")
 
+    val ver_rxjava = "3.0.3"
+    implementation("io.reactivex.rxjava3:rxjava:$ver_rxjava")
+
+    val ver_okhttp = "4.6.0"
+    val ver_retrofit = "2.5.0"
+    implementation("com.squareup.retrofit2:retrofit:$ver_retrofit")
+    implementation("com.squareup.retrofit2:converter-gson:$ver_retrofit")
+    implementation("com.github.akarnokd:rxjava3-retrofit-adapter:3.0.0")
+    implementation("com.squareup.okhttp3:okhttp:$ver_okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor:$ver_okhttp")
+
 }
 
 tasks.withType<KotlinCompile> {

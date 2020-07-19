@@ -7,7 +7,10 @@ import org.deepsymmetry.beatlink.data.TrackMetadata
 import java.awt.image.BufferedImage
 import java.io.File
 
-class HqAlbumArtFinder(val paths: List<String>, private val validExtensions: List<String>) {
+class HqAlbumArtFinder {
+    val paths: List<String> = MainConfig.get("music-folders")
+    private val validExtensions: List<String> = MainConfig.get("music-file-extensions")
+
     private val artMap: HashMap<ArtHash, String> = hashMapOf()
 
     init {

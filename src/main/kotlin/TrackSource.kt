@@ -1,23 +1,12 @@
 package cx.aphex.now_playing
 
-import com.uchuhimo.konf.Config
-import com.uchuhimo.konf.toValue
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import org.deepsymmetry.beatlink.Beat
 import org.deepsymmetry.beatlink.BeatListener
 import org.deepsymmetry.beatlink.OnAirListener
 import org.deepsymmetry.beatlink.data.ArtFinder
 import org.deepsymmetry.beatlink.data.MetadataFinder
 import java.awt.image.BufferedImage
-import java.io.File
-import java.io.OutputStream
-import java.nio.ByteBuffer
-import java.nio.channels.Channels
-import java.nio.channels.WritableByteChannel
-import java.nio.file.Paths
-import java.time.Duration
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import javax.imageio.ImageIO
 
 
 /**
@@ -29,19 +18,12 @@ import javax.imageio.ImageIO
  * intuitive, it works great because when you're in the mix, you want to keep people guessing as to the incoming track.
  * They only see its title when you're done mixing it in, right as you slam the outgoing channel's fader down. :)
  */
-class TrackSource(config: Config) : BeatListener, OnAirListener {
+class TrackSource : BeatListener, OnAirListener {
 
-    private val outputFolder = config.at("output-folder").toValue<String>()
-
-    private val REMOVE_THESE = config.at("remove-these-from-track-titles").toValue<List<String>>()
-
-    private var emptyTrack = config.at("empty-track").toValue<Track>()
-
-    private val emptyAlbumArt: ByteArray = File(config.at("empty-track-album-art-path").toValue<String>()).readBytes()
-
-    private val hidelabel = config.at("hide-track-with-this-album-name").toValue<String>()
-
-    private val IDlabel = config.at("id-track-with-this-album-name").toValue<String>()
+    private val REMOVE_THESE: List<String> = MainConfig.get("remove-these-from-track-titles")
+    private var emptyTrack: Track = MainConfig.get("empty-track")
+    private val hidelabel: String = MainConfig.get("hide-track-with-this-album-name")
+    private val IDlabel: String = MainConfig.get("id-track-with-this-album-name")
     private var IDTrack = Track(
         id = -1,
         title = "ID",
@@ -49,18 +31,13 @@ class TrackSource(config: Config) : BeatListener, OnAirListener {
         art = null,
         precedingTrackPlayedAtBpm = null
     )
-    private var nowPlayingTrack: Track = emptyTrack
-    private val currentlyAudibleChannels: MutableSet<Int> = hashSetOf()
-    private var startTime = LocalDateTime.now()
-    private val tracklist = mutableMapOf<LocalDateTime, Track>()
-    val dateformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_H.mm.ss")
 
+    val nowPlayingTrack: BehaviorSubject<Track> = BehaviorSubject.createDefault(emptyTrack)
+
+    private val currentlyAudibleChannels: MutableSet<Int> = hashSetOf()
     private var currentBpm: Double? = null
 
-    private val HqAlbumArtFinder = HqAlbumArtFinder(
-        config.at("music-folders").toValue(),
-        config.at("music-file-extensions").toValue()
-    )
+    private val HqAlbumArtFinder = HqAlbumArtFinder()
 
     override fun newBeat(beat: Beat?) {
         currentBpm = beat?.effectiveTempo
@@ -85,7 +62,6 @@ class TrackSource(config: Config) : BeatListener, OnAirListener {
             val art: BufferedImage? = HqAlbumArtFinder.getHQAlbumArt(metadata)
                 ?: ArtFinder.getInstance().getLatestArtFor(it)?.image
 
-
             val currentTrack = when (metadata.album.label) {
                 IDlabel -> IDTrack
                 hidelabel -> emptyTrack
@@ -101,125 +77,17 @@ class TrackSource(config: Config) : BeatListener, OnAirListener {
             }
 
             //TODO this isn't comparing same tracks correctly? Test this id check
-            if (currentTrack.id == nowPlayingTrack.id) {
+            if (currentTrack.id == nowPlayingTrack.value.id) {
                 return
             }
 
             println(currentTrack)
-            writeNowPlayingToFiles(currentTrack)
-            writeToTrackList(currentTrack)
-            nowPlayingTrack = currentTrack
+            nowPlayingTrack.onNext(currentTrack)
 
         } ?: run {
-            if (nowPlayingTrack != emptyTrack) {
-                writeNowPlayingToFiles(emptyTrack)
-                nowPlayingTrack = emptyTrack
+            if (nowPlayingTrack.value != emptyTrack) {
+                nowPlayingTrack.onNext(emptyTrack)
             }
         }
-    }
-
-    private fun writeToTrackList(currentTrack: Track) {
-        val now = LocalDateTime.now()
-        if (tracklist.isEmpty()) {
-            startTime = now
-        }
-        tracklist[now] = currentTrack
-
-        with(Paths.get(outputFolder, "tracklist.${dateformatter.format(startTime)}.txt").toFile()) {
-            if (!exists()) createNewFile()
-            val writer = printWriter()
-            tracklist.keys.forEachIndexed { index, tracktime ->
-                val elapsed = Duration.between(startTime, tracktime)
-                val track = tracklist[tracktime]
-                writer.println(
-                    "${index + 1}. ${track?.artist} - ${track?.title} ${formatDuration(elapsed)}"
-                )
-            }
-            writer.close()
-        }
-
-        with(Paths.get(outputFolder, "tracklist.bpm.${dateformatter.format(startTime)}.txt").toFile()) {
-            if (!exists()) createNewFile()
-            val writer = printWriter()
-            tracklist.keys.forEachIndexed { index, tracktime ->
-                val elapsed = Duration.between(startTime, tracktime)
-                val track = tracklist[tracktime]
-                writer.println(
-                    "${index + 1}. ${track?.artist} - ${track?.title} ${formatDuration(elapsed)} |${track?.precedingTrackPlayedAtBpm}"
-                )
-            }
-            writer.close()
-        }
-    }
-
-    private fun writeNowPlayingToFiles(track: Track) {
-        with(Paths.get(outputFolder, "nowplaying-artist.txt").toFile()) {
-            if (!exists()) createNewFile()
-            val writer = printWriter()
-            writer.println(track.artist)
-            writer.close()
-        }
-
-        with(Paths.get(outputFolder, "nowplaying-track.txt").toFile()) {
-            if (!exists()) createNewFile()
-            val writer = printWriter()
-            writer.println(track.title)
-            writer.close()
-        }
-
-        with(Paths.get(outputFolder, "art/nowplaying-art.png").toFile()) {
-            if (!exists()) createNewFile()
-            if (track.art == null) {
-                writeBytes(emptyAlbumArt)
-            } else {
-                ImageIO.write(track.art, "png", outputStream())
-            }
-        }
-    }
-
-    fun writeBuffer(buffer: ByteBuffer?, stream: OutputStream?) {
-        val channel: WritableByteChannel = Channels.newChannel(stream)
-        channel.write(buffer)
-        channel.close()
-    }
-
-    fun formatDuration(duration: Duration): String? {
-        val seconds = duration.seconds
-        val absSeconds = Math.abs(seconds)
-        val positive = String.format(
-            "%d:%02d:%02d",
-            absSeconds / 3600,
-            absSeconds % 3600 / 60,
-            absSeconds % 60
-        )
-        return if (seconds < 0) "-$positive" else positive
-    }
-
-}
-
-data class Track(
-    val id: Int,
-    val title: String,
-    val artist: String,
-    val art: BufferedImage?,
-    val precedingTrackPlayedAtBpm: Double?
-) {
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Track) return false
-
-        if (id != other.id) return false
-        if (title != other.title) return false
-        if (artist != other.artist) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + title.hashCode()
-        result = 31 * result + artist.hashCode()
-        return result
     }
 }

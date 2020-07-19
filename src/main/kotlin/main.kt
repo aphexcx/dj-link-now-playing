@@ -11,13 +11,18 @@ import org.deepsymmetry.beatlink.data.MetadataFinder
 import org.slf4j.LoggerFactory
 import kotlin.concurrent.thread
 
-
-fun main(args: Array<String>) {
+object MainConfig {
     val config = Config()
         .from.yaml.file("config.yml")
 
+    inline fun <reified T> get(path: String): T {
+        return config.at(path).toValue()
+    }
+}
+
+fun main(args: Array<String>) {
     val rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
-    rootLogger.level = Level.toLevel(config.at("log-level").toValue<String>())
+    rootLogger.level = Level.toLevel(MainConfig.get<String>("log-level"))
 
     BeatLinkDataConsumerServiceDiscovery.start()
 
@@ -67,12 +72,23 @@ fun main(args: Array<String>) {
 
     ArtFinder.getInstance().start()
 
-    val trackSource = TrackSource(config)
+    val trackSource = TrackSource()
 
     val beatListener = BeatFinder.getInstance()
     beatListener.addBeatListener(trackSource)
     beatListener.addOnAirListener(trackSource)
     beatListener.start()
+
+    trackSource.nowPlayingTrack.subscribe(FileWriterTrackObserver())
+    trackSource.nowPlayingTrack.subscribe(TracklistWriterTrackObserver())
+    trackSource.nowPlayingTrack.subscribe(ConsumerTrackNotifier())
+
+//    trackSource.nowPlayingTrack.subscribe(object : Observer {
+//        override fun onNext(t: Track?) {
+//            TODO("Not yet implemented")
+//        }
+//
+//    })
 
     while (true) {
         Thread.sleep(100)
