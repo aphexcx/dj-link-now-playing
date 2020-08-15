@@ -15,7 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class BeatLinkNotifierClient(val consumer: BeatLinkDataConsumer) {
     private val loggingInterceptor = HttpLoggingInterceptor()
-        .setLevel(HttpLoggingInterceptor.Level.BODY)
+        .setLevel(HttpLoggingInterceptor.Level.BASIC)
 
     private val clientInterceptor: Interceptor = Interceptor { chain ->
         var request: Request = chain.request()

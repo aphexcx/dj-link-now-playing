@@ -26,6 +26,7 @@ class FileWriterTrackObserver : Observer<Track> {
         with(Paths.get(outputFolder, "nowplaying-artist.txt").toFile()) {
             if (!exists()) createNewFile()
             val writer = printWriter()
+//                         writer.println("QUARANTRANCE • Episode #10 • WE FOUND OUR BEACH")
             writer.println(track.artist)
             writer.close()
         }
@@ -33,7 +34,15 @@ class FileWriterTrackObserver : Observer<Track> {
         with(Paths.get(outputFolder, "nowplaying-track.txt").toFile()) {
             if (!exists()) createNewFile()
             val writer = printWriter()
+//            writer.println("twitch.tv/aphexcx")
             writer.println(track.title)
+            writer.close()
+        }
+
+        with(Paths.get(outputFolder, "nowplaying-both.txt").toFile()) {
+            if (!exists()) createNewFile()
+            val writer = printWriter()
+            writer.println(track.artist + " • " + track.title)
             writer.close()
         }
 

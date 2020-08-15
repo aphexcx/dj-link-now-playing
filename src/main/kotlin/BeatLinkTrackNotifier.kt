@@ -7,7 +7,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import org.slf4j.LoggerFactory
 
 
-class ConsumerTrackNotifier : Observer<Track> {
+class BeatLinkTrackNotifier : Observer<Track> {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java.name) as Logger
 
     override fun onNext(track: Track) {

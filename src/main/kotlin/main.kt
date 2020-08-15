@@ -81,14 +81,7 @@ fun main(args: Array<String>) {
 
     trackSource.nowPlayingTrack.subscribe(FileWriterTrackObserver())
     trackSource.nowPlayingTrack.subscribe(TracklistWriterTrackObserver())
-    trackSource.nowPlayingTrack.subscribe(ConsumerTrackNotifier())
-
-//    trackSource.nowPlayingTrack.subscribe(object : Observer {
-//        override fun onNext(t: Track?) {
-//            TODO("Not yet implemented")
-//        }
-//
-//    })
+    trackSource.nowPlayingTrack.subscribe(BeatLinkTrackNotifier())
 
     while (true) {
         Thread.sleep(100)

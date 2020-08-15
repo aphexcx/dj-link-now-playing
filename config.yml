@@ -1,14 +1,14 @@
 # All files (track title, artist, album art, tracklists etc) will be continuously written and updated in this directory.
 # Note that art will be written to the art/ subfolder here so you can use the folder with OBS's Image Slide Show.
-output-folder: "/Users/afik_cohen/Dropbox/obs/"
+output-folder: "D:\\Dropbox\\obs\\"
 
 # This is what now-playing will show while there is no track playing or while there are multiple tracks playing (e.g. when you're in the mix.)
 empty-track:
-  artist: "QUARANTRANCE • Party Mode • SUMMER VIBES"
+  artist: "QUARANTRANCE • Episode #10 • WE FOUND OUR BEACH"
   title: "twitch.tv/aphexcx"
 
 # The path to an image file that will be shown for the empty track.
-empty-track-album-art-path: "/Users/afik_cohen/Dropbox/obs/image.png"
+empty-track-album-art-path: "D:\\Dropbox\\obs\\image.png"
 
 # The empty track will be shown if you play a track tagged with this Album name.
 hide-track-with-this-album-name: "HIDEME"
@@ -22,8 +22,8 @@ remove-these-from-track-titles: [ " - Extended Mix",
                                   "(Extended Mix)" ]
 
 #Paths to music folders. Optional - only used to search for high quality album art for each track. If found, we'll display that, otherwise we'll use the low-quality version from the cdjs via dj-link.
-music-folders: ["/Users/afik_cohen/Dropbox/DJ/AIFF/Afik/",
-                "/Users/afik_cohen/Dropbox/DJ/MP3/Afik/" ]
+music-folders: ["D:\\Dropbox\\DJ\\AIFF\\Afik\\",
+                "D:\\Dropbox\\DJ\\MP3\\Afik\\" ]
 # Look at these types of files when searching for high quality album art.
 music-file-extensions: ["mp3", "aif", "aiff"]
 

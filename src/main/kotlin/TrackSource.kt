@@ -21,7 +21,7 @@ import java.awt.image.BufferedImage
 class TrackSource : BeatListener, OnAirListener {
 
     private val REMOVE_THESE: List<String> = MainConfig.get("remove-these-from-track-titles")
-    private var emptyTrack: Track = MainConfig.get("empty-track")
+    private var emptyTrack: Track = MainConfig.get<Track>("empty-track").copy(isEmpty = true)
     private val hidelabel: String = MainConfig.get("hide-track-with-this-album-name")
     private val IDlabel: String = MainConfig.get("id-track-with-this-album-name")
     private var IDTrack = Track(
@@ -29,6 +29,7 @@ class TrackSource : BeatListener, OnAirListener {
         title = "ID",
         artist = "ID",
         art = null,
+        isId = true,
         precedingTrackPlayedAtBpm = null
     )
 

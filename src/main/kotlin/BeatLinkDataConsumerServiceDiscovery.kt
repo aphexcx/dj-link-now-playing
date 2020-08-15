@@ -16,7 +16,7 @@ object BeatLinkDataConsumerServiceDiscovery {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java.name) as Logger
 
-    val beatLinkDataConsumers = mutableListOf<BeatLinkDataConsumer>()
+    val beatLinkDataConsumers = mutableSetOf<BeatLinkDataConsumer>()
     init {
         logger.level = Level.INFO
     }
