@@ -14,6 +14,8 @@ class HqAlbumArtFinder {
     private val artMap: HashMap<ArtHash, String> = hashMapOf()
 
     init {
+        println("Reading music files from $paths...")
+
         paths.forEach {
             processDirectory(File(it))
         }
