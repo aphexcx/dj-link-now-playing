@@ -1,5 +1,6 @@
 package cx.aphex.now_playing
 
+import BeatLinkTrackNotifier
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.uchuhimo.konf.Config

@@ -1,5 +1,3 @@
-package cx.aphex.now_playing
-
 import java.awt.image.BufferedImage
 
 data class Track(

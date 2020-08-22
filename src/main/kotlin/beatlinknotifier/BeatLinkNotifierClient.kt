@@ -1,7 +1,7 @@
 package cx.aphex.now_playing.beatlinknotifier
 
+import Track
 import cx.aphex.now_playing.BeatLinkDataConsumer
-import cx.aphex.now_playing.Track
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers

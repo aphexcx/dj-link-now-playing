@@ -4,7 +4,7 @@ output-folder: "D:\\Dropbox\\obs\\"
 
 # This is what now-playing will show while there is no track playing or while there are multiple tracks playing (e.g. when you're in the mix.)
 empty-track:
-  artist: "QUARANTRANCE • Episode #10 • WE FOUND OUR BEACH"
+  artist: "QUARANTRANCE • LIVE LEDS"
   title: "twitch.tv/aphexcx"
 
 # The path to an image file that will be shown for the empty track.
