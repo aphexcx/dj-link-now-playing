@@ -48,12 +48,22 @@ class FileWriterTrackObserver : Observer<Track> {
         }
 
         with(Paths.get(outputFolder, "art/nowplaying-art.png").toFile()) {
-            if (!exists()) createNewFile()
+
+            val tempFile = createTempFile(outputFolder)
+
             if (track.art == null) {
-                writeBytes(emptyAlbumArt)
+                tempFile.writeBytes(emptyAlbumArt)
             } else {
-                ImageIO.write(track.art, "png", outputStream())
+                ImageIO.write(track.art, "png", tempFile.outputStream())
             }
+
+            if (exists()) {
+                delete()
+            }
+            tempFile.copyTo(this)
+            tempFile.delete()
         }
+
     }
+
 }
