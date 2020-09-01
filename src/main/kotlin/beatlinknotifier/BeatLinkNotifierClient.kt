@@ -47,8 +47,8 @@ class BeatLinkNotifierClient(val consumer: BeatLinkDataConsumer) {
 
     }
 
-    fun notify(track: Track): Single<String> {
-        return apiService.currentTrack(track)
+    fun notify(track: Track): Single<Boolean> {
+        return apiService.currentTrack(track).map { it.success }
     }
 
 }

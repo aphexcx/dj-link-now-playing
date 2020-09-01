@@ -14,14 +14,18 @@ import javax.jmdns.ServiceTypeListener
  */
 object BeatLinkDataConsumerServiceDiscovery {
 
-    private val logger: Logger = LoggerFactory.getLogger(this::class.java.name) as Logger
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java.simpleName) as Logger
 
     val beatLinkDataConsumers = mutableSetOf<BeatLinkDataConsumer>()
     init {
         logger.level = Level.INFO
     }
 
-    val jmdns: JmDNS = JmDNS.create(InetAddress.getLocalHost())
+    //    val nif: NetworkInterface = NetworkInterface.getByName("en10")
+//    val nifAddresses: Enumeration<InetAddress> = nif.inetAddresses
+//
+//    val jmdns: JmDNS = JmDNS.create(nifAddresses.nextElement())
+    val jmdns: JmDNS = JmDNS.create(InetAddress.getLoopbackAddress())
 
     fun start() {
 

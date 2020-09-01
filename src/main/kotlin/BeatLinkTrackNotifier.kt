@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 
 
 class BeatLinkTrackNotifier : Observer<Track> {
-    private val logger: Logger = LoggerFactory.getLogger(this::class.java.name) as Logger
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java.simpleName) as Logger
 
     override fun onNext(track: Track) {
         notifyAll(track)
@@ -17,9 +17,10 @@ class BeatLinkTrackNotifier : Observer<Track> {
         BeatLinkDataConsumerServiceDiscovery.beatLinkDataConsumers.forEach {
             // POST track to /currentTrack
             // When do I connect?
+            logger.info("Notifying for track: $track")
             BeatLinkNotifierClient(it).notify(track).subscribe(
                 { result ->
-                    logger.debug(result)
+                    logger.info("Notified. Data consumer server reported success = $result")
                 },
                 { error ->
                     logger.error(error.message)

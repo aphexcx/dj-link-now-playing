@@ -1,25 +1,28 @@
 package cx.aphex.now_playing
 
+import ch.qos.logback.classic.Logger
 import ealvatag.audio.AudioFileIO
 import ealvatag.tag.FieldKey
 import ealvatag.tag.NullTag
 import org.deepsymmetry.beatlink.data.TrackMetadata
+import org.slf4j.LoggerFactory
 import java.awt.image.BufferedImage
 import java.io.File
 
 class HqAlbumArtFinder {
+    private val logger: Logger = LoggerFactory.getLogger(this::class.java.simpleName) as Logger
+
     val paths: List<String> = MainConfig.get("music-folders")
     private val validExtensions: List<String> = MainConfig.get("music-file-extensions")
 
     private val artMap: HashMap<ArtHash, String> = hashMapOf()
 
     init {
-        println("Reading music files from $paths...")
-
+        logger.info("Reading music files from $paths...")
         paths.forEach {
             processDirectory(File(it))
         }
-        println("Read ${artMap.size} music files, will use them for high quality album art :)")
+        logger.info("Read ${artMap.size} music files, will use them for high quality album art :)")
     }
 
     private fun processDirectory(dir: File) {

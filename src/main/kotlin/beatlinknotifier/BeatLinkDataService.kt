@@ -8,6 +8,6 @@ import retrofit2.http.POST
 interface BeatLinkDataService {
 
     @POST("currentTrack")
-    fun currentTrack(@Body track: Track): Single<String>
+    fun currentTrack(@Body track: Track): Single<BeatLinkPostResponse>
 
 }
