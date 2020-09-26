@@ -5,10 +5,19 @@ import cx.aphex.now_playing.BeatLinkDataConsumer
 import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
+import logger
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
+import javax.imageio.ImageIO
+
 
 class BeatLinkNotifierClient(val consumer: BeatLinkDataConsumer) {
     private val loggingInterceptor = HttpLoggingInterceptor()
@@ -48,7 +57,28 @@ class BeatLinkNotifierClient(val consumer: BeatLinkDataConsumer) {
     }
 
     fun notify(track: Track): Single<Boolean> {
-        return apiService.currentTrack(track).map { it.success }
+        return apiService.currentTrack(track)
+            .flatMap { trackResponse ->
+                notifyAlbumArt(track.art)
+                    .map { trackResponse.success }
+            }
+    }
+
+    fun notifyAlbumArt(art: BufferedImage): Single<BeatLinkPostResponse> {
+        val baos = ByteArrayOutputStream()
+        ImageIO.write(art, "png", baos)
+        val imageBytes = baos.toByteArray()
+
+        val requestBytes: RequestBody =
+            imageBytes.toRequestBody("multipart/form-data".toMediaType(), 0, imageBytes.size)
+
+        // MultipartBody.Part is used to send also the actual file name
+        val imageBody: MultipartBody.Part =
+            MultipartBody.Part.createFormData("image", "currentAlbumArt.png", requestBytes)
+
+        return apiService.currentAlbumArt(imageBody).doOnError {
+            logger.error(it.message)
+        }
     }
 
 }

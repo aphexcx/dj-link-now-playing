@@ -8,6 +8,8 @@ import org.deepsymmetry.beatlink.OnAirListener
 import org.deepsymmetry.beatlink.data.ArtFinder
 import org.deepsymmetry.beatlink.data.MetadataFinder
 import java.awt.image.BufferedImage
+import java.io.File
+import javax.imageio.ImageIO
 
 
 /**
@@ -22,16 +24,24 @@ import java.awt.image.BufferedImage
 class TrackSource : BeatListener, OnAirListener {
 
     private val REMOVE_THESE: List<String> = MainConfig.get("remove-these-from-track-titles")
-    private var emptyTrack: Track = MainConfig.get<Track>("empty-track").copy(isEmpty = true)
+
+    private val emptyAlbumArt: BufferedImage = ImageIO.read(File(MainConfig.get<String>("empty-track-album-art-path")))
+    private var emptyTrack: Track = Track(
+        id = -1,
+        title = MainConfig.get<String>("empty-track.title"),
+        artist = MainConfig.get<String>("empty-track.artist"),
+        art = emptyAlbumArt,
+        isEmpty = true
+    )
+
     private val hidelabel: String = MainConfig.get("hide-track-with-this-album-name")
     private val IDlabel: String = MainConfig.get("id-track-with-this-album-name")
     private var IDTrack = Track(
         id = -1,
         title = "ID",
         artist = "ID",
-        art = null,
-        isId = true,
-        precedingTrackPlayedAtBpm = null
+        art = emptyAlbumArt,
+        isId = true
     )
 
     val nowPlayingTrack: BehaviorSubject<Track> = BehaviorSubject.createDefault(emptyTrack)
@@ -61,8 +71,10 @@ class TrackSource : BeatListener, OnAirListener {
                 title = title.replace(it, "")
             }
 
-            val art: BufferedImage? = HqAlbumArtFinder.getHQAlbumArt(metadata)
-                ?: ArtFinder.getInstance().getLatestArtFor(it)?.image
+            val art: BufferedImage =
+                HqAlbumArtFinder.getHQAlbumArt(metadata)
+                    ?: ArtFinder.getInstance().getLatestArtFor(it)?.image
+                    ?: emptyAlbumArt
 
             val currentTrack = when (metadata.album.label) {
                 IDlabel -> IDTrack

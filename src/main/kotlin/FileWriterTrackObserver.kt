@@ -3,14 +3,13 @@ package cx.aphex.now_playing
 import Track
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
-import java.io.File
 import java.nio.file.Paths
 import javax.imageio.ImageIO
 
 class FileWriterTrackObserver : Observer<Track> {
     private val outputFolder: String = MainConfig.get("output-folder")
 
-    private val emptyAlbumArt: ByteArray = File(MainConfig.get<String>("empty-track-album-art-path")).readBytes()
+
 
     override fun onNext(track: Track) {
         writeNowPlayingToFiles(track)
@@ -51,11 +50,11 @@ class FileWriterTrackObserver : Observer<Track> {
 
             val tempFile = createTempFile(outputFolder)
 
-            if (track.art == null) {
-                tempFile.writeBytes(emptyAlbumArt)
-            } else {
-                ImageIO.write(track.art, "png", tempFile.outputStream())
-            }
+//            if (track.art == null) {
+//                tempFile.writeBytes(emptyAlbumArt)
+//            } else {
+            ImageIO.write(track.art, "png", tempFile.outputStream())
+//            }
 
             if (exists()) {
                 delete()

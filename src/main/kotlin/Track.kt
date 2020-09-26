@@ -6,8 +6,8 @@ data class Track(
     val artist: String,
     val isEmpty: Boolean = false,
     val isId: Boolean = false,
-    @Transient val art: BufferedImage?,
-    val precedingTrackPlayedAtBpm: Double?
+    @Transient val art: BufferedImage,
+    val precedingTrackPlayedAtBpm: Double? = null
 ) {
 
     override fun equals(other: Any?): Boolean {
