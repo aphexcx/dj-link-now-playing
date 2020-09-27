@@ -1,6 +1,5 @@
 package cx.aphex.now_playing
 
-import Track
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
 import java.io.File

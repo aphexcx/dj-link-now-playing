@@ -1,3 +1,5 @@
+package cx.aphex.now_playing
+
 import ch.qos.logback.classic.Logger
 import org.slf4j.LoggerFactory
 

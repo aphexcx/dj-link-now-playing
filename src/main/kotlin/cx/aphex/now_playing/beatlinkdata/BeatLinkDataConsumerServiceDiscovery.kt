@@ -1,7 +1,8 @@
-package cx.aphex.now_playing
+package cx.aphex.now_playing.beatlinkdata
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
+import com.jakewharton.rxrelay3.PublishRelay
 import org.slf4j.LoggerFactory
 import java.net.InetAddress
 import javax.jmdns.JmDNS
@@ -17,15 +18,18 @@ object BeatLinkDataConsumerServiceDiscovery {
     private val logger: Logger = LoggerFactory.getLogger(this::class.java.simpleName) as Logger
 
     val beatLinkDataConsumers = mutableSetOf<BeatLinkDataConsumer>()
+
     init {
         logger.level = Level.INFO
     }
+
+    val onNewConsumerDiscovered: PublishRelay<BeatLinkDataConsumer> = PublishRelay.create()
 
     //    val nif: NetworkInterface = NetworkInterface.getByName("en10")
 //    val nifAddresses: Enumeration<InetAddress> = nif.inetAddresses
 //
 //    val jmdns: JmDNS = JmDNS.create(nifAddresses.nextElement())
-    val jmdns: JmDNS = JmDNS.create(InetAddress.getLoopbackAddress())
+    val jmdns: JmDNS = JmDNS.create(InetAddress.getLocalHost())
 
     fun start() {
 
@@ -56,12 +60,12 @@ object BeatLinkDataConsumerServiceDiscovery {
         override fun serviceResolved(event: ServiceEvent) {
             logger.info("Service resolved: " + event.info)
             val info = event.info
-            beatLinkDataConsumers.add(
-                BeatLinkDataConsumer(
-                    info.inet4Addresses.first(),
-                    info.port
-                )
+            val newConsumer = BeatLinkDataConsumer(
+                info.inet4Addresses.first(),
+                info.port
             )
+            beatLinkDataConsumers.add(newConsumer)
+            onNewConsumerDiscovered.accept(newConsumer)
         }
     }
 }

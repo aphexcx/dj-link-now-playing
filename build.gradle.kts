@@ -28,6 +28,7 @@ dependencies {
 
     val ver_rxjava = "3.0.3"
     implementation("io.reactivex.rxjava3:rxjava:$ver_rxjava")
+    implementation("com.jakewharton.rxrelay3:rxrelay:3.0.0")
 
     val ver_okhttp = "4.6.0"
     val ver_retrofit = "2.5.0"

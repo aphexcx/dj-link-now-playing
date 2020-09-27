@@ -1,6 +1,6 @@
-package cx.aphex.now_playing.beatlinknotifier
+package cx.aphex.now_playing.beatlinkdata
 
-import Track
+import cx.aphex.now_playing.Track
 import io.reactivex.rxjava3.core.Single
 import okhttp3.MultipartBody
 import retrofit2.http.Body

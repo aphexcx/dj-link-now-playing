@@ -1,11 +1,12 @@
 package cx.aphex.now_playing
 
-import BeatLinkTrackNotifier
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.yaml
 import com.uchuhimo.konf.toValue
+import cx.aphex.now_playing.beatlinkdata.BeatLinkDataConsumerServiceDiscovery
+import cx.aphex.now_playing.beatlinkdata.BeatLinkTrackNotifier
 import org.deepsymmetry.beatlink.*
 import org.deepsymmetry.beatlink.data.ArtFinder
 import org.deepsymmetry.beatlink.data.MetadataFinder
@@ -25,17 +26,15 @@ fun main(args: Array<String>) {
     val rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
     rootLogger.level = Level.toLevel(MainConfig.get<String>("log-level"))
 
-    BeatLinkDataConsumerServiceDiscovery.start()
-
     val deviceFinder = DeviceFinder.getInstance()
     deviceFinder.start()
     deviceFinder.addDeviceAnnouncementListener(object : DeviceAnnouncementListener {
         override fun deviceLost(announcement: DeviceAnnouncement) {
-            println("Lost device: ${announcement.name}")
+            println("Lost device: ${announcement.deviceName}")
         }
 
         override fun deviceFound(announcement: DeviceAnnouncement) {
-            println("New device: ${announcement.name}")
+            println("New device: ${announcement.deviceName}")
         }
     })
 
@@ -80,10 +79,17 @@ fun main(args: Array<String>) {
     beatListener.addOnAirListener(trackSource)
     beatListener.start()
 
-    trackSource.nowPlayingTrack.subscribe(FileWriterTrackObserver())
-    trackSource.nowPlayingTrack.subscribe(TracklistWriterTrackObserver())
-    trackSource.nowPlayingTrack.subscribe(BeatLinkTrackNotifier())
 
+    val beatLinkTrackNotifier = BeatLinkTrackNotifier()
+    trackSource.nowPlayingTrack.subscribe(beatLinkTrackNotifier)
+    trackSource.nowPlayingTrack.subscribe(TracklistWriterTrackObserver())
+
+    BeatLinkDataConsumerServiceDiscovery.start()
+    BeatLinkDataConsumerServiceDiscovery.onNewConsumerDiscovered.subscribe { consumer ->
+        trackSource.nowPlayingTrack.value?.let { track ->
+            beatLinkTrackNotifier.notifyConsumer(consumer, track)
+        }
+    }
     while (true) {
         Thread.sleep(100)
     }

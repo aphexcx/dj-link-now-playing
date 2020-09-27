@@ -1,3 +1,3 @@
-package cx.aphex.now_playing.beatlinknotifier
+package cx.aphex.now_playing.beatlinkdata
 
 data class BeatLinkPostResponse(val success: Boolean)
