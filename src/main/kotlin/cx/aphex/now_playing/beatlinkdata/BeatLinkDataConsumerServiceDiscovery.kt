@@ -64,8 +64,9 @@ object BeatLinkDataConsumerServiceDiscovery {
                 info.inet4Addresses.first(),
                 info.port
             )
-            beatLinkDataConsumers.add(newConsumer)
-            onNewConsumerDiscovered.accept(newConsumer)
+            if (beatLinkDataConsumers.add(newConsumer)) {
+                onNewConsumerDiscovered.accept(newConsumer)
+            }
         }
     }
 }
