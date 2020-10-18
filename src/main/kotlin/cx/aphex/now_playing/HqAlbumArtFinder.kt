@@ -1,4 +1,4 @@
-package cx.aphex.now_playing
+ package cx.aphex.now_playing
 
 import ch.qos.logback.classic.Logger
 import ealvatag.audio.AudioFileIO
@@ -44,8 +44,8 @@ class HqAlbumArtFinder {
             val artHash = ArtHash(
                 tag.getValue(FieldKey.TITLE).get(),
                 tag.getValue(FieldKey.ARTIST).get(),
-                tag.getValue(FieldKey.ALBUM).orNull(),
-                tag.getValue(FieldKey.COMMENT).orNull()
+//                tag.getValue(FieldKey.ALBUM).or(""),
+                tag.getValue(FieldKey.COMMENT).or("")
             )
             artMap[artHash] = file.path
         }
@@ -68,13 +68,13 @@ class HqAlbumArtFinder {
 data class ArtHash(
     val title: String,
     val artist: String,
-    val album: String?,
-    val comment: String?
+//    val album: String = "",
+    val comment: String = ""
 ) {
     constructor(metadata: TrackMetadata) : this(
         metadata.title,
         metadata.artist.label,
-        metadata.album.label,
+//        metadata.album.label,
         metadata.comment
     )
 }
