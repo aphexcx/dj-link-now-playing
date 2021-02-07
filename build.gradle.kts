@@ -21,7 +21,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.10")
     implementation("org.deepsymmetry:beat-link:0.6.2")
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.3")
     implementation("com.uchuhimo:konf:0.22.1")
     implementation("com.ealva", "ealvatag", "0.4.3")
     implementation("org.jmdns:jmdns:3.5.5")
