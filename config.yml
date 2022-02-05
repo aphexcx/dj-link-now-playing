@@ -4,11 +4,12 @@ output-folder: "/Users/afik_cohen/Dropbox/obs/"
 
 # This is what now-playing will show while there is no track playing or while there are multiple tracks playing (e.g. when you're in the mix.)
 empty-track:
-  artist: "QUARANTRANCE • TLV Edition • Episode #4"
-  title: "twitch.tv/aphexcx"
+  artist: "APHEX • Live"
+  title: "1015 Folsom • 2/4/2022"
+#  title: "at Hat Creek"
 
 # The path to an image file that will be shown for the empty track.
-empty-track-album-art-path: "/Users/afik_cohen/Dropbox/obs/image.png"
+empty-track-album-art-path: "/Users/afik_cohen/Dropbox/obs/tfsf.jpeg"
 
 # The empty track will be shown if you play a track tagged with this Album name.
 hide-track-with-this-album-name: "HIDEME"

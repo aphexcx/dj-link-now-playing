@@ -25,9 +25,9 @@ object BeatLinkDataConsumerServiceDiscovery {
 
     val onNewConsumerDiscovered: PublishRelay<BeatLinkDataConsumer> = PublishRelay.create()
 
-    //    val nif: NetworkInterface = NetworkInterface.getByName("en10")
+//        val nif: NetworkInterface = NetworkInterface.getByName("en9")
 //    val nifAddresses: Enumeration<InetAddress> = nif.inetAddresses
-//
+////
 //    val jmdns: JmDNS = JmDNS.create(nifAddresses.nextElement())
     val jmdns: JmDNS = JmDNS.create(InetAddress.getLocalHost())
 
