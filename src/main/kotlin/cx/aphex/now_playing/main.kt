@@ -46,7 +46,7 @@ fun main(args: Array<String>) {
     // This also means you can't run this when rekordbox is running on the same computer.
     val virtualCdj = VirtualCdj.getInstance()
     virtualCdj.useStandardPlayerNumber = true
-    virtualCdj.deviceNumber = 5
+    virtualCdj.deviceNumber = MainConfig.get<Int>("device-number").toByte()
     virtualCdj.addLifecycleListener(object : LifecycleListener {
         override fun stopped(sender: LifecycleParticipant?) {
             println("VirtualCdj stopped!")

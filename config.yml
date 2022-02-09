@@ -2,6 +2,9 @@
 # Note that art will be written to the art/ subfolder here so you can use the folder with OBS's Image Slide Show.
 output-folder: "/Users/afik_cohen/Dropbox/obs/"
 
+#This is the virtual CDJ player number now-playing will occupy. Pick one that isn't in use, from 1-6 inclusive.
+device-number: 5
+
 # This is what now-playing will show while there is no track playing or while there are multiple tracks playing (e.g. when you're in the mix.)
 empty-track:
   artist: "APHEX • Live"
